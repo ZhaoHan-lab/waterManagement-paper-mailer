@@ -24,7 +24,7 @@ jobs:
           QQ_SMTP_USER: ${{ secrets.QQ_SMTP_USER }}
           QQ_SMTP_AUTH_CODE: ${{ secrets.QQ_SMTP_AUTH_CODE }}
           MAIL_TO: ${{ secrets.MAIL_TO }}
-        run: python scripts/send_daily_waterManagement_paper.py
+        run: python send_daily_waterManagement_paper.py
 
       - name: Commit sent paper history
         run: |
