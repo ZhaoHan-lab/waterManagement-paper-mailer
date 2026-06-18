@@ -1,4 +1,3 @@
-
 from __future__ import annotations
 
 import email.utils
@@ -99,7 +98,7 @@ def arxiv_request(query: str, max_results: int = 50) -> bytes:
     )
     req = urllib.request.Request(
         f"{ARXIV_API}?{params}",
-        headers={"User-Agent": "daily-robotics-paper-mailer/1.0"},
+        headers={"User-Agent": "daily-smart-water-agent-mailer/1.0"},
     )
     last_error: Exception | None = None
     for attempt in range(4):
@@ -122,13 +121,14 @@ def score_paper(title: str, abstract: str, categories: list[str], published: dat
     for keyword, weight in KEYWORDS.items():
         if keyword in text:
             score += weight
-    # 替换 score_paper 函数中的类别加分逻辑：
+    
     if "cs.MA" in categories: # Multiagent Systems
         score += 12
     if "eess.SY" in categories: # Systems and Control
         score += 10
     if "cs.AI" in categories: # Artificial Intelligence
         score += 8
+        
     days_old = max(0, (datetime.now(timezone.utc) - published).days)
     score += max(0, 30 - min(days_old, 30))
     return score
@@ -227,7 +227,7 @@ def find_best_paper(sent_urls: set[str]) -> Paper:
                 papers_by_url[paper.url] = paper
         time.sleep(3)
     if not papers_by_url:
-        raise RuntimeError("No arXiv papers found for the configured robotics queries.")
+        raise RuntimeError("No arXiv papers found for the configured smart water agent queries.")
     ranked_papers = sorted(
         papers_by_url.values(),
         key=lambda paper: (paper.score, paper.published),
@@ -243,9 +243,9 @@ def find_best_paper(sent_urls: set[str]) -> Paper:
 def download_pdf(pdf_url: str) -> Path | None:
     if not pdf_url:
         return None
-    safe_name = "daily_robotics_paper.pdf"
+    safe_name = "daily_smart_water_agent_paper.pdf"
     target = Path(tempfile.gettempdir()) / safe_name
-    req = urllib.request.Request(pdf_url, headers={"User-Agent": "daily-robotics-paper-mailer/1.0"})
+    req = urllib.request.Request(pdf_url, headers={"User-Agent": "daily-smart-water-agent-mailer/1.0"})
     try:
         with urllib.request.urlopen(req, timeout=90) as response:
             target.write_bytes(response.read())
@@ -266,7 +266,7 @@ def build_email_body(paper: Paper, attached_pdf: bool) -> str:
     pdf_text = "已随邮件附件发送。" if attached_pdf else paper.pdf_url
     wrapped_abstract = textwrap.fill(paper.abstract, width=88)
 
-    return f"""今日机器人运动控制前沿论文推荐
+    return f"""今日智能体应用于智能水务前沿论文推荐
 
 英文标题：
 {paper.title}
@@ -284,20 +284,20 @@ PDF：
 {pdf_text}
 
 中文摘要：
-这篇论文来自 arXiv 自动检索结果，主题与机器人运动控制、腿足/人形机器人、机械臂控制、强化学习控制、MPC 或 whole-body control 方向高度相关。原始摘要如下，便于你快速判断是否需要深入阅读：
+这篇论文来自 arXiv 自动检索结果，主题与多智能体系统、自主智能体、强化学习或大语言模型智能体在污水处理、水资源回收、泵站调度及曝气控制等智能水务方向高度相关。原始摘要如下，便于你快速判断是否需要深入阅读：
 
 {wrapped_abstract}
 
 关键贡献：
-1. 围绕机器人运动控制中的建模、规划、学习或控制策略提出新的方法或系统。
-2. 与运动控制核心问题相关，包括动态约束、轨迹生成、稳定性、鲁棒性、策略学习或真实机器人验证。
-3. 论文主题命中了当前检索关键词，综合相关性、发布时间和机器人类别后被选为今日推荐。
+1. 围绕智能水务系统中的建模、预测、异常检测、过程控制或优化调度提出基于智能体的新方法。
+2. 与污水处理厂 (WWTP) 或水资源管理的核心问题相关，可能涉及强化学习决策、多智能体协同或真实水网验证。
+3. 论文主题命中了当前检索关键词，综合相关性、发布时间和智能体类别后被选为今日推荐。
 
 推荐理由：
-该论文在今天的自动筛选中得分最高，优先满足“最新”和“运动控制相关”两个条件。建议重点查看方法部分、实验设置，以及是否包含真实机器人或高保真仿真验证。
+该论文在今天的自动筛选中得分最高，优先满足“最新”和“智能体水务相关”两个条件。建议重点查看智能体架构设计、强化学习算法设置，以及是否包含真实污水处理数据或高保真仿真验证。
 
-与机器人运动控制方向的关联：
-这类工作通常直接影响机器人在复杂动力学和接触条件下的运动生成、全身协调、操作控制或策略学习，对腿足机器人、人形机器人和机械臂控制研究都有参考价值。
+与智能体结合水务方向的关联：
+这类工作通常直接影响复杂水务系统（如污水处理厂生化反应、管网输配）的自主决策、动态优化与多环节协同，对提升水务智能化水平、降低能耗和药耗具有重要参考价值。
 
 自动筛选信息：
 arXiv 分类：{", ".join(paper.categories)}
@@ -312,7 +312,7 @@ def send_email(paper: Paper, pdf_path: Path | None) -> None:
     recipient = os.environ.get("MAIL_TO", smtp_user).strip()
 
     msg = EmailMessage()
-    msg["Subject"] = f"每日机器人运动控制论文：{paper.title[:80]}"
+    msg["Subject"] = f"每日智能体与水务前沿论文：{paper.title[:80]}"
     msg["From"] = smtp_user
     msg["To"] = recipient
     msg.set_content(build_email_body(paper, attached_pdf=pdf_path is not None), charset="utf-8")
@@ -322,7 +322,7 @@ def send_email(paper: Paper, pdf_path: Path | None) -> None:
             pdf_path.read_bytes(),
             maintype="application",
             subtype="pdf",
-            filename="daily_robotics_paper.pdf",
+            filename="daily_smart_water_agent_paper.pdf",
         )
 
     context = ssl.create_default_context()
