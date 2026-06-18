@@ -1,5 +1,12 @@
 [
   {
+    "url": "https://arxiv.org/abs/2509.25034v4",
+    "title": "MARLIN: Multi-Agent Reinforcement Learning with Murmuration Intelligence and LLM Guidance for Reservoir Management",
+    "published": "2025-09-29T16:53:24+00:00",
+    "sent_at": "2026-06-18T08:40:48.637395+00:00",
+    "score": 51
+  },
+  {
     "url": "https://arxiv.org/abs/2008.10417v3",
     "title": "Optimal control towards sustainable wastewater treatment plants based on multi-agent reinforcement learning",
     "published": "2020-08-19T05:34:47+00:00",
